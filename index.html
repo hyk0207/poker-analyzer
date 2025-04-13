@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>德州撲克分析器</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    select, button { margin: 5px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>德州撲克分析器</h1>
+  <p>選擇你的手牌與桌面牌，我會給你建議！</p>
+
+  <h3>你的手牌</h3>
+  <select id="card1"></select>
+  <select id="card2"></select>
+
+  <h3>桌面牌</h3>
+  <select id="flop1"></select>
+  <select id="flop2"></select>
+  <select id="flop3"></select>
+
+  <br><br>
+  <button onclick="analyze()">分析</button>
+
+  <h2 id="result"></h2>
+
+  <script>
+    const cards = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+    const selects = ["card1", "card2", "flop1", "flop2", "flop3"];
+
+    selects.forEach(id => {
+      let sel = document.getElementById(id);
+      cards.forEach(card => {
+        let opt = document.createElement("option");
+        opt.value = card;
+        opt.innerText = card;
+        sel.appendChild(opt);
+      });
+    });
+
+    function analyze() {
+      let card1 = document.getElementById("card1").value;
+      let card2 = document.getElementById("card2").value;
+      let flop = [
+        document.getElementById("flop1").value,
+        document.getElementById("flop2").value,
+        document.getElementById("flop3").value
+      ];
+      let action = "蓋牌";
+
+      if (card1 === card2) {
+        action = "加注（你有一對）";
+      } else if (flop.includes(card1) || flop.includes(card2)) {
+        action = "跟注（你有一對）";
+      } else {
+        action = "蓋牌（沒牌）";
+      }
+
+      document.getElementById("result").innerText = `建議：${action}`;
+    }
+  </script>
+</body>
+</html>
