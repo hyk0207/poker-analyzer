@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>德州撲克分析器</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    select, button { margin: 5px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>德州撲克分析器</h1>
+  <p>選擇你的手牌與桌面牌，我會給你建議！</p>
+
+  <h3>你的手牌</h3>
+  <div>
+    <select id="card1-rank"></select>
+    <select id="card1-suit"></select>
+    <select id="card2-rank"></select>
+    <select id="card2-suit"></select>
+  </div>
+
+  <h3>桌面牌（翻牌區）</h3>
+  <div>
+    <select id="flop1-rank"></select>
+    <select id="flop1-suit"></select>
+    <select id="flop2-rank"></select>
+    <select id="flop2-suit"></select>
+    <select id="flop3-rank"></select>
+    <select id="flop3-suit"></select>
+  </div>
+
+  <br>
+  <button onclick="analyze()">分析</button>
+
+  <h2 id="result"></h2>
+
+  <script>
+    const ranks = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+    const suits = ["紅心", "黑桃", "方塊", "梅花"];
+
+    function fillSelect(id, options) {
+      let sel = document.getElementById(id);
+      options.forEach(val => {
+        let opt = document.createElement("option");
+        opt.value = val;
+        opt.innerText = val;
+        sel.appendChild(opt);
+      });
+    }
+
+    function setup() {
+      const ids = [
+        "card1-rank", "card2-rank", "flop1-rank", "flop2-rank", "flop3-rank",
+        "card1-suit", "card2-suit", "flop1-suit", "flop2-suit", "flop3-suit"
+      ];
+      ids.forEach(id => {
+        if (id.includes("rank")) fillSelect(id, ranks);
+        else fillSelect(id, suits);
+      });
+    }
+
+    function analyze() {
+      let hand = [
+        { rank: document.getElementById("card1-rank").value, suit: document.getElementById("card1-suit").value },
+        { rank: document.getElementById("card2-rank").value, suit: document.getElementById("card2-suit").value }
+      ];
+      let flop = [
+        { rank: document.getElementById("flop1-rank").value, suit: document.getElementById("flop1-suit").value },
+        { rank: document.getElementById("flop2-rank").value, suit: document.getElementById("flop2-suit").value },
+        { rank: document.getElementById("flop3-rank").value, suit: document.getElementById("flop3-suit").value }
+      ];
+
+      let allRanks = [...hand.map(c => c.rank), ...flop.map(c => c.rank)];
+      let allSuits = [...hand.map(c => c.suit), ...flop.map(c => c.suit)];
+
+      let rankCount = {};
+      allRanks.forEach(r => rankCount[r] = (rankCount[r] || 0) + 1);
+
+      let action = "蓋牌";
+
+      if (Object.values(rankCount).includes(3)) {
+        action = "大加注（三條）";
+      } else if (Object.values(rankCount).includes(2) && Object.values(rankCount).filter(v => v === 2).length >= 2) {
+        action = "加注（兩對）";
+      } else if (Object.values(rankCount).includes(2)) {
+        action = "跟注（一對）";
+      }
+
+      let suitCount = {};
+      allSuits.forEach(s => suitCount[s] = (suitCount[s] || 0) + 1);
+      if (Object.values(suitCount).some(c => c >= 4)) {
+        action = "跟注（有同花機會）";
+      }
+
+      document.getElementById("result").innerText = `建議：${action}`;
+    }
+
+    setup();
+  </script>
+</body>
+</html>
